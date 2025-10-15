@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: hospital-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: hospital
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    ports:
+      - "3306:3306" # Expose for MySQL Workbench access
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build: ./hospital-backend
+    container_name: hospital-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/hospital
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mysql
+
+  frontend:
+    build: ./hospital-frontend
+    container_name: hospital-frontend
+    environment:
+      VITE_API_URL: http://localhost:8081
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
